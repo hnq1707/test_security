@@ -25,7 +25,8 @@ public class TransactionHistoryServiceImpl implements ITransactionHistoryService
         try {
             // Lấy dữ liệu từ DTO
             String transactionId = dto.getTransactionId();
-            String account = dto.getAccount();
+            String fromAccount = dto.getFromAccount();
+            String toAccount = dto.getToAccount();
             String inDebtStr = dto.getInDebt();
             String haveStr = dto.getHave();
             String timeStr = dto.getTime();
@@ -38,7 +39,8 @@ public class TransactionHistoryServiceImpl implements ITransactionHistoryService
             // 1. Tạo bản ghi giao dịch NỢ cho tài khoản nguồn
             TransactionHistory debitTransaction = new TransactionHistory();
             debitTransaction.setTransactionId(transactionId);
-            debitTransaction.setAccount(account); // AES mã hóa tự xử lý trong converter
+            debitTransaction.setAccount(fromAccount); // AES mã hóa tự xử lý trong
+            // converter
             debitTransaction.setInDebt(inDebt);
             debitTransaction.setHave(BigDecimal.ZERO);
             debitTransaction.setTime(time);
@@ -46,7 +48,8 @@ public class TransactionHistoryServiceImpl implements ITransactionHistoryService
             // 2. Tạo bản ghi giao dịch CÓ cho tài khoản đích
             TransactionHistory creditTransaction = new TransactionHistory();
             creditTransaction.setTransactionId(transactionId);
-            creditTransaction.setAccount(account); // AES mã hóa tự xử lý trong converter
+            creditTransaction.setAccount(toAccount); // AES mã hóa tự xử lý trong
+            // converter
             creditTransaction.setInDebt(BigDecimal.ZERO);
             creditTransaction.setHave(have);
             creditTransaction.setTime(time);
@@ -56,7 +59,10 @@ public class TransactionHistoryServiceImpl implements ITransactionHistoryService
             transactionHistoryRepository.save(creditTransaction);
 
             log.info("✅ Giao dịch đã lưu thành công: transactionId={}, account={}, inDebt={}, have={}, time={}", 
-                mask(transactionId), mask(account), mask(inDebtStr), mask(haveStr), mask(timeStr));
+                mask(transactionId), mask(fromAccount),mask(toAccount),
+                    mask(inDebtStr),
+                    mask(haveStr),
+                    mask(timeStr));
         } catch (DateTimeParseException e) {
             log.error("❌ Lỗi định dạng thời gian không hợp lệ: time=?", e);
             throw new RuntimeException("Thời gian không hợp lệ", e);

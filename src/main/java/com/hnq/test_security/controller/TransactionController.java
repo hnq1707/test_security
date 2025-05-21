@@ -29,8 +29,10 @@ public class TransactionController {
     public ResponseEntity<String> sendTransaction() throws Exception {
         ResponseEntity<String> response = null;
         try {
+
             String transactionId = "TX123456";
-            String account = "1234567890";
+            String fromAccount = "9876543210";
+            String toAccount = "1234567890";
             String inDebt = "1000000";
             String have = "0";
             String time = LocalDateTime.now().toString();
@@ -39,7 +41,9 @@ public class TransactionController {
 
             // Mã hóa từng trường bằng publicKey
             dto.setTransactionId(RSAEncryptionUtils.encrypt(transactionId, publicKey));
-            dto.setAccount(RSAEncryptionUtils.encrypt(account, publicKey));
+            dto.setFromAccount(RSAEncryptionUtils.encrypt(fromAccount,
+                    publicKey));
+            dto.setToAccount(RSAEncryptionUtils.encrypt(toAccount, publicKey));
             dto.setInDebt(RSAEncryptionUtils.encrypt(inDebt, publicKey));
             dto.setHave(RSAEncryptionUtils.encrypt(have, publicKey));
             dto.setTime(RSAEncryptionUtils.encrypt(time, publicKey));
@@ -63,7 +67,10 @@ public class TransactionController {
         try {
             // Giải mã các trường dữ liệu bằng privateKey trước khi xử lý
             String transactionId = RSAEncryptionUtils.decrypt(encryptedDto.getTransactionId(), privateKey);
-            String account = RSAEncryptionUtils.decrypt(encryptedDto.getAccount(), privateKey);
+            String toAccount =
+                    RSAEncryptionUtils.decrypt(encryptedDto.getToAccount(),
+                    privateKey);
+            String fromAccount = RSAEncryptionUtils.decrypt(encryptedDto.getFromAccount(), privateKey);
             String inDebt = RSAEncryptionUtils.decrypt(encryptedDto.getInDebt(), privateKey);
             String have = RSAEncryptionUtils.decrypt(encryptedDto.getHave(), privateKey);
             String time = RSAEncryptionUtils.decrypt(encryptedDto.getTime(), privateKey);
@@ -71,7 +78,8 @@ public class TransactionController {
             // Tạo DTO mới chứa dữ liệu đã giải mã để service xử lý lưu trữ hoặc xử lý tiếp
             TransactionDTO decryptedDto = new TransactionDTO();
             decryptedDto.setTransactionId(transactionId);
-            decryptedDto.setAccount(account);
+            decryptedDto.setFromAccount(fromAccount);
+            decryptedDto.setToAccount(toAccount);
             decryptedDto.setInDebt(inDebt);
             decryptedDto.setHave(have);
             decryptedDto.setTime(time);
